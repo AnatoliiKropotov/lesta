@@ -4,6 +4,7 @@ from flask import Flask
 from flask_caching import Cache
 import redis
 
+
 config = {
     "DEBUG": True,
     "CACHE_TYPE": "RedisCache",
