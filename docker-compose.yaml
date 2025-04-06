@@ -10,7 +10,7 @@ services:
       - flask-redis
 
   flask:
-    build: "1.0"
+    build: .
     container_name: flask-app
     ports:
       - "5000:5000"

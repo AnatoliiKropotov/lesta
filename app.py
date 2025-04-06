@@ -27,6 +27,8 @@ def count():
     count_connection = redis_connection.get("count")
     if count_connection is None:
         count_connection = 0
+    else:
+        count_connection = int(count_connection)
     count_connection += 1
     redis_connection.set("count", count_connection)
     return f"Количество посещений: {count_connection }"
