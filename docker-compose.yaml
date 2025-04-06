@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:alpine
+    container_name: redis-server
+    ports:
+      - "6379:6379"
+    networks:
+      - flask-redis
+
+  flask:
+    build: "1.0"
+    container_name: flask-app
+    ports:
+      - "5000:5000"
+    depends_on:
+      - redis
+    networks:
+      - flask-redis
+    environment:
+      REDIS_URL: "redis://redis-server:6379/0"
+
+networks:
+  flask-redis:
+    driver: bridge
