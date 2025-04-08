@@ -1,19 +1,11 @@
 import os
 
 from flask import Flask
-from flask_caching import Cache
 import redis
 
-
-config = {
-    "DEBUG": True,
-    "CACHE_TYPE": "RedisCache",
-    "CACHE_DEFAULT_TIMEOUT": 300,
-    "CACHE_REDIS_URL": "redis://redis-server:6379/0"
-}
 app = Flask(__name__)
-app.config.from_mapping(config)
-cache = Cache(app)
+
+redis_connection = redis.Redis.from_url(os.getenv("REDIS_URL", "redis://redis-server:6379/0"))
 
 
 @app.route("/ping")
@@ -22,16 +14,16 @@ def ping():
 
 
 @app.route("/count")
-def count():
-    redis_connection = redis.Redis.from_url(os.getenv("REDIS_URL", "redis://redis-server:6379/0"))
-    count_connection = redis_connection.get("count")
-    if count_connection is None:
-        count_connection = 0
+def count_views():
+    key = "page_views"
+
+    if redis_connection.exists(key):
+        count = redis_connection.incr(key)
     else:
-        count_connection = int(count_connection)
-    count_connection += 1
-    redis_connection.set("count", count_connection)
-    return f"Количество посещений: {count_connection }"
+        count = 1
+        redis_connection.setex(key, 60, count)
+    return f"Количество посещений страницы за 60 секунд: {count}"
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
